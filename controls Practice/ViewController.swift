@@ -23,15 +23,38 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         updateUI()
+        rotateSwitches()
     }
 
     /// Updates all outlets to number
     func updateUI(){
         button.setTitle("\(number)", for: []) // [] - для всех состояний
         
-        // TODO: set switches to number
+        updateSwitches()
         slider.value = Float(number)
         textField.text = "\(number)"
+    }
+    
+    func rotateSwitches(){
+        for `switch` in switches { // `switch` - так как слово  switch занято средой
+            `switch`.layer.transform = CATransform3DMakeRotation(.pi / 2, 0, 0, 1) // тут все в радианах .pi / 2 - поворот на 90 грудусов, если в ругую сторону крутить, то нужно через минус
+        }
+    }
+    
+    /// Update number from switches
+    func updateNumberFromSwitches(){
+        var number = 0
+        for `switch` in switches{
+            number += `switch`.isOn ? `switch`.tag : 0
+        }
+        self.number = UInt8(number % 256) //  256 - это контроль от изменения тэгов таким образом, что сумма получится больше 256
+    }
+    
+    /// Update  switches from number
+    func updateSwitches(){
+        for `switch` in switches{
+            `switch`.isOn = Int(number) & `switch`.tag != 0 // & логическое И для побитового сложения. 50 урок
+        }
     }
     
     @IBAction func buttonPressed() {
@@ -40,7 +63,8 @@ class ViewController: UIViewController {
     }
     
     @IBAction func switchToggled(_ sender: UISwitch) {
-        //print(#line, #function, sender.tag)
+//        print(#line, #function, sender.tag)
+        updateNumberFromSwitches()
     }
     
     @IBAction func sliderMoved() {
