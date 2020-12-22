@@ -14,8 +14,22 @@ class ViewController: UIViewController {
     @IBOutlet weak var slider: UISlider!
     @IBOutlet weak var textField: UITextField!
     
-    var number: UInt8 = 128{ //U - беззнаковое число
+    //var number: UInt8 = 128{ //U - беззнаковое число
+    var number = 128{ // изменинли тип на обычный Int, т.к. теперь значение от 0 до 255 регулируется условиями в didSet
+        //после установки значения
+        willSet{
+            
+        }
+        //до установки значения
         didSet{
+//            if number < 0 {
+//                number = 255
+//            }else if 255 < number {
+//                number = 0
+//            }
+            // if выше заменим таким выражением 
+            number = (number + 256) % 256
+            
             updateUI()
         }
     }
@@ -47,7 +61,9 @@ class ViewController: UIViewController {
         for `switch` in switches{
             number += `switch`.isOn ? `switch`.tag : 0
         }
-        self.number = UInt8(number % 256) //  256 - это контроль от изменения тэгов таким образом, что сумма получится больше 256
+        //self.number = UInt8(number % 256) //  256 - это контроль от изменения тэгов таким образом, что сумма получится больше 256
+        // изменили, т.к. number теперь Int  и преобразование не нужно
+        self.number = number
     }
     
     /// Update  switches from number
@@ -59,7 +75,9 @@ class ViewController: UIViewController {
     
     @IBAction func buttonPressed() {
         //print(#line, #function)
-        number = UInt8((Int(number) + 1) % 256) // берем по модулю 256б что бы не выйти за границы типа Int8
+        //number = UInt8((Int(number) + 1) % 256) // берем по модулю 256, что бы не выйти за границы типа Int8
+        // теперь провреку перенесем в didSet переменной
+        number += 1
     }
     
     @IBAction func switchToggled(_ sender: UISwitch) {
@@ -69,12 +87,22 @@ class ViewController: UIViewController {
     
     @IBAction func sliderMoved() {
         //print(#line, #function)
-        number = UInt8(slider.value)
+        number = Int(slider.value)
     }
     
     @IBAction func textFieldEdited() {
         //print(#line, #function)
-        number = UInt8(textField.text ?? "") ?? 128 // text тут опциональное  ?? показывает,что если оно nil, то вернуть пустую строку
+        number = Int(textField.text ?? "") ?? 128 // text тут опциональное  ?? показывает,что если оно nil, то вернуть пустую строку
+    }
+    
+    @IBAction func screenTapped(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: view)
+        //print(#line, #function, sender.location(in: view))
+        if location.x < view.bounds.midX{ //x меньше середины экрана
+            number -= 1
+        } else{
+            number += 1
+        }
     }
 }
 
